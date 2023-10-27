@@ -6,8 +6,7 @@ import os
 import shutil
 import pydicom as dicom
 
-DEBUG = False
-
+from GETK_helper import logging
 
 def GE_fix_special_characters_error(directoryDicomFilesToCorrect, 
                                     dcmTemplateFile,
@@ -31,16 +30,25 @@ def GE_fix_special_characters_error(directoryDicomFilesToCorrect,
     
     if os.path.isdir(dcmTemplateFile):
         dcmTemplateFile = findFirstDicom(dcmTemplateFile) 
+    if (dcmTemplateFile is None) or (not os.path.isfile(dcmTemplateFile)):
+        raise FileNotFoundError(f"{dcmTemplateFile} not found")
     
     firstDicom = findFirstDicom(directoryDicomFilesToCorrect)
     dcmHasErrorStr = doesDicomHaveAnyTagContainingStr(firstDicom, errorStr)
-    if DEBUG: print(f"file {firstDicom} has {errorStr} : {dcmHasErrorStr}")
+    logging.debug(f"Checked file {firstDicom} has '{errorStr}' : {dcmHasErrorStr}.")
     if not dcmHasErrorStr:
+        logging.info(f"No corrections made as '{errorStr}' not found in any tags.")
         return False, directoryDicomFilesToCorrect
-    if DEBUG: print('Continue') 
+    #
+    # If here then need to proceed with performing corrections
+    #
+    # Build temporary working environment
     directoryDicomFilesToCorrect_TEMP = directoryDicomFilesToCorrect+"_ORIGINAL"
     shutil.move(directoryDicomFilesToCorrect, directoryDicomFilesToCorrect_TEMP)
     os.mkdir(directoryDicomFilesToCorrect)
+    logging.debug(f"Moved originals to {directoryDicomFilesToCorrect_TEMP}.")
+    #
+    # Correct TAGs in all files
     dcmTemplateFile_ds = dicom.read_file(dcmTemplateFile, stop_before_pixels=True)
     for iFile in os.listdir(directoryDicomFilesToCorrect_TEMP):
         iDcm_ds = replaceTagsMatchingStr_withTemplate(os.path.join(directoryDicomFilesToCorrect_TEMP, iFile), errorStr, dcmTemplateFile_ds)
@@ -48,6 +56,7 @@ def GE_fix_special_characters_error(directoryDicomFilesToCorrect,
         iDcm_ds.save_as(newName)
     if DELETE_ORIGINALS:
         shutil.rmtree(directoryDicomFilesToCorrect_TEMP)
+        logging.debug(f"Deleted originals at {directoryDicomFilesToCorrect_TEMP}.")
     return True, directoryDicomFilesToCorrect
 
 
@@ -68,10 +77,7 @@ def replaceTagsMatchingStr_withTemplate(dcmFile, tagMatchStr, template_dcm):
     dcm_ds = dicom.read_file(dcmFile)
     for element in dcm_ds:
         if _doesTagContainSearchStr(element, tagMatchStr):
-            if DEBUG: 
-                print(element.tag)
-                print(dcm_ds[element.tag].value)
-                print(template_dcm[element.tag].value)
+            logging.debug(f"Correcting {element.tag} in {dcmFile}")
             dcm_ds[element.tag].value = template_dcm[element.tag].value
     return dcm_ds
 
