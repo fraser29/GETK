@@ -45,7 +45,7 @@ This can be called from a python script that is running in the system environmen
 
 venvSource = "/path/to/virtualenv/bin/activate"
 # Example to fix special characters
-cmd = f"python /path/to/GETK/GETK.py -i '{origDir}' -t '{templateDir}' -A FSC"
+cmd = f"/path/to/venv/bin/python /path/to/GETK/GETK.py -i '{origDir}' -t '{templateDir}' -A FSC"
 
 runStr = f"source {venvSource} && {cmd}"
 p1 = subprocess.Popen(runStr, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, executable='/bin/bash')
@@ -53,4 +53,14 @@ p1.wait()
 # Optional
 stdout, stderr = p1.communicate()
 print(p1.returncode, stdout, stderr)
+```
+
+
+## To run from bash script
+
+# TODO - want to run from passing Ex + Series
+
+```bash
+source /path/to/venv/bin/activate.csh && /path/to/venv/bin/python /path/to/GETK/GETK.py -i /path/to/dicom/directory -t /path/to/template/file -A FSC
+
 ```

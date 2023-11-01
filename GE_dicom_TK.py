@@ -4,6 +4,7 @@ Collection of tools for working with GE dicom files
 
 import os
 import shutil
+import subprocess
 import pydicom as dicom
 
 from GETK_helper import logging
@@ -34,6 +35,8 @@ def GE_fix_special_characters_error(directoryDicomFilesToCorrect,
         raise FileNotFoundError(f"{dcmTemplateFile} not found")
     
     firstDicom = findFirstDicom(directoryDicomFilesToCorrect)
+    if firstDicom is None:
+        raise FileNotFoundError(f"{firstDicom} not found")
     dcmHasErrorStr = doesDicomHaveAnyTagContainingStr(firstDicom, errorStr)
     logging.debug(f"Checked file {firstDicom} has '{errorStr}' : {dcmHasErrorStr}.")
     if not dcmHasErrorStr:
@@ -137,3 +140,18 @@ def findFirstDicom(rootDir):
             except dicom.filereader.InvalidDicomError:
                 continue
     return None     
+
+
+def getImagePaths(exam, series):
+    """Return list of paths to dicoms for given exam / series
+    
+    Keyword arguments:
+    exam (int) -- exam number
+    sereis (int) -- series number
+    Return: list of full paths of dicoms
+    """
+    p1 = subprocess.Popen(['pathExtract', str(exam), str(series)], stdout=subprocess.PIPE, universal_newlines=True)
+    res = p1.communicate()[0]
+    if len(res.rstrip().split('\n'))-1 <= 0:
+        return []
+    return res.rstrip().split('\n')[1:]

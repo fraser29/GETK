@@ -5,7 +5,7 @@ import sys
 
 ### ====================================================================================================================
 
-logging.basicConfig(encoding='utf-8',level=logging.INFO,
+logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s | %(levelname)s | %(name)s | %(message)s', 
                     datefmt = '%m/%d/%Y %I:%M:%S') 
 
