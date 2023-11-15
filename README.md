@@ -35,7 +35,7 @@ It is not straight forward to make a virtual environment on the scanner and inst
 - build virtual environment on separate workstation (ie. workstation you use for EPIC) (base python should be same "semi-major" version as on scanner - e.g. 3.6.*)
 - install pydicom via pip
 - scp entire virtual environment onto scanner
-- note - to activate virtual environment on scanner you will need source venv/bin/activate.csh (not normal source venv/bin/activate).
+- note - to activate virtual environment on scanner in default shell you will need source venv/bin/activate.csh (not normal source venv/bin/activate).
 
 ## To run from other python script on console
 
@@ -56,11 +56,31 @@ print(p1.returncode, stdout, stderr)
 ```
 
 
+## To run from csh script
+
+```tcsh
+INPUT_DIRECTORY=$1
+
+source /path/to/venv/bin/activate.csh && /path/to/venv/bin/python /path/to/GETK/GETK.py -i $INPUT_DIRECTORY -t /path/to/template/file -A FSC
+# OR
+
+EXAM=$2
+SERIES=$3
+source /path/to/venv/bin/activate.csh && /path/to/venv/bin/python /path/to/GETK/GETK.py -i $INPUT_DIRECTORY -exam $EXAM -series $SERIES -A FSC
+
+```
+
 ## To run from bash script
 
-# TODO - want to run from passing Ex + Series
-
 ```bash
-source /path/to/venv/bin/activate.csh && /path/to/venv/bin/python /path/to/GETK/GETK.py -i /path/to/dicom/directory -t /path/to/template/file -A FSC
+#!/bin/bash
+INPUT_DIRECTORY=$1
+
+source /path/to/venv/bin/activate && /path/to/venv/bin/python /path/to/GETK/GETK.py -i $INPUT_DIRECTORY -t /path/to/template/file -A FSC
+# OR
+
+EXAM=$2
+SERIES=$3
+source /path/to/venv/bin/activate && /path/to/venv/bin/python /path/to/GETK/GETK.py -i $INPUT_DIRECTORY -exam $EXAM -series $SERIES -A FSC
 
 ```
