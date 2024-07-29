@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# TODO - need to account for action on vre run by ssh - not done yet
+
 # A script to backup Physio Scan Archives (on vre) 
 # by copying to intermediate location (mrraw) and then to remote location
 
@@ -22,7 +24,7 @@ rm -rf "$DIR_INTER"/*
 mkdir -p "$DIR_INTER"
 
 # B: Generate list of files to copy to intermediary
-find "$DIR_SRC" -type f > "$TEMP_LIST"
+ssh vre find "$DIR_SRC" -type f > "$TEMP_LIST"
 
 # Remove files from TEMP_LIST that are already in the log file
 if [[ -f "$LOG_FILE" ]]; then
