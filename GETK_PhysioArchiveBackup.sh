@@ -5,14 +5,17 @@
 # A script to backup Physio Scan Archives (on vre) 
 # by copying to intermediate location (mrraw) and then to remote location
 
-DIR_SRC="/data/arc/Streaming"
-DIR_MRRAW="/export/research/mrraw"
-DIR_INTER="$DIR_MRRAW/physioarchive"
-
 # ---
 # Update this to your personal arrangement
 REMOTE_DEST="user@remote:/path/to/backup"
 # ---
+
+# These are standard locations on consol / vre
+DIR_SRC="/data/arc/Streaming"
+DIR_MRRAW_VRE="/export/research/mrraw"
+DIR_MRRAW="/usr/g/mrraw"
+DIR_INTER="$DIR_MRRAW/physioarchive"
+DIR_INTER_VRE="$DIR_MRRAW_VRE/physioarchive"
 
 LOG_FILE="$DIR_MRRAW/physioarchive_backup_completed.log"
 TEMP_LIST="$DIR_INTER/new_files_to_backup.list"
@@ -40,7 +43,7 @@ while IFS= read -r file; do
     # Create necessary directories in INTERMEDIARY
     mkdir -p "$DIR_INTER/$(dirname "$rel_path")"
     # Copy the file
-    cp "$file" "$DIR_INTER/$rel_path"
+    cp "$file" "$DIR_INTER_VRE/$rel_path"
 done < "$TEMP_LIST"
 
 # D: Generate list of new files to backup
