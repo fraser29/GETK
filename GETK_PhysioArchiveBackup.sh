@@ -6,7 +6,7 @@
 # by copying to intermediate location (mrraw) and then to remote location
 
 # ---
-# Update this to your personal arrangement
+# Update this to your personal arrangement (note: you will need to set up ssh keys)
 REMOTE_DEST="user@remote:/path/to/backup"
 # ---
 
