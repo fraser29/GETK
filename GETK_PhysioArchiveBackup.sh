@@ -73,10 +73,10 @@ done < "$TEMP_LIST"
 # G: Clear INTERMEDIARY
 echo "--------------------------------------------------"
 echo "Clearing $DIR_INTER after backup..."
-#  rm -rf "$DIR_INTER"/*
+rm -rf "$DIR_INTER"/*
 
 # Cleanup
-#  rm -f "$TEMP_LIST"
+rm -f "$TEMP_LIST"
 
 echo "Backup completed."
 
