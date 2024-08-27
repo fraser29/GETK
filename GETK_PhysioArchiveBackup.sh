@@ -1,13 +1,11 @@
 #!/bin/bash
 
-# TODO - need to account for action on vre run by ssh - not done yet
-
-# A script to backup Physio Scan Archives (on vre) 
+# A script to backup Physio Scan Archives (on vre)
 # by copying to intermediate location (mrraw) and then to remote location
 
 # ---
-# Update this to your personal arrangement (note: you will need to set up ssh keys)
-REMOTE_DEST="user@remote:/path/to/backup"
+# Update this to your personal arrangement
+REMOTE_DEST="username@remote_ip:remote_dest"
 # ---
 
 # These are standard locations on consol / vre
@@ -22,6 +20,7 @@ TEMP_LIST="$DIR_INTER/new_files_to_backup.list"
 
 # A: Copy files to intermediary
 # Ensure intermediary is empty at the start
+echo "--------------------------------------------------"
 echo "Clearing $DIR_INTER..."
 rm -rf "$DIR_INTER"/*
 mkdir -p "$DIR_INTER"
@@ -36,6 +35,7 @@ if [[ -f "$LOG_FILE" ]]; then
 fi
 
 # C: Copy new files to intermediary
+echo "--------------------------------------------------"
 echo "Copying new files from $DIR_SRC to $DIR_INTER..."
 while IFS= read -r file; do
     # Get relative path of the file
@@ -43,10 +43,12 @@ while IFS= read -r file; do
     # Create necessary directories in INTERMEDIARY
     mkdir -p "$DIR_INTER/$(dirname "$rel_path")"
     # Copy the file
-    cp "$file" "$DIR_INTER_VRE/$rel_path"
+    echo "Copy $file --> $DIR_INTER_VRE/$rel_path "
+    ssh -n vre cp "$file" "$DIR_INTER_VRE/$rel_path"
 done < "$TEMP_LIST"
 
 # D: Generate list of new files to backup
+echo "--------------------------------------------------"
 echo "Generating list of new files to backup..."
 find "$DIR_INTER" -type f > "$TEMP_LIST"
 
@@ -57,9 +59,10 @@ if [[ -f "$LOG_FILE" ]]; then
 fi
 
 # F: Backup new files
-echo "Backipg up new files to $REMOTE_DEST..."
+echo "--------------------------------------------------"
+echo "Backing up new files to $REMOTE_DEST..."
 while IFS= read -r file; do
-    rsync -av "$file" "$REMOTE_DEST"
+    rsync -ave ssh "$file" "$REMOTE_DEST"
     if [[ $? -eq 0 ]]; then
         echo "$file" >> "$LOG_FILE"
     else
@@ -68,10 +71,12 @@ while IFS= read -r file; do
 done < "$TEMP_LIST"
 
 # G: Clear INTERMEDIARY
+echo "--------------------------------------------------"
 echo "Clearing $DIR_INTER after backup..."
-rm -rf "$DIR_INTER"/*
+#  rm -rf "$DIR_INTER"/*
 
 # Cleanup
-rm -f "$TEMP_LIST"
+#  rm -f "$TEMP_LIST"
 
 echo "Backup completed."
+
