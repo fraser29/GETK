@@ -5,7 +5,11 @@
 
 # ---
 # Update this to your personal arrangement
-REMOTE_DEST="username@remote_ip:remote_dest"
+REMOTE_CONNECTION="username@remote_ip"
+REMOTE_DESTINATION="remote_dest"
+REMOTE_SSH="$REMOTE_CONNECTION:$REMOTE_DESTINATION"
+# an alternative method is to define these variables in a .env file then:
+# soucre .env
 # ---
 
 # These are standard locations on consol / vre
@@ -13,10 +17,26 @@ DIR_SRC="/data/arc/Streaming"
 DIR_MRRAW_VRE="/export/research/mrraw"
 DIR_MRRAW="/usr/g/mrraw"
 DIR_INTER="$DIR_MRRAW/physioarchive"
+mkdir -p $DIR_INTER
 DIR_INTER_VRE="$DIR_MRRAW_VRE/physioarchive"
+mkdir -p $DIR_INTER_VRE
 
-LOG_FILE="$DIR_MRRAW/physioarchive_backup_completed.log"
 TEMP_LIST="$DIR_INTER/new_files_to_backup.list"
+
+timestamp=$(date +"%Y%m%d_%H%M%S")
+LOG_FILE="$DIR_MRRAW/physioarchive_backup_completed_$timestamp.log"
+touch "$LOG_FILE"
+
+## --- INITIATION COMPLETE --- ##
+
+# Test the connection
+if ssh $REMOTE_CONNECTION "[ -d $REMOTE_DESTINATION ]"; then
+    echo "CONNECTION OK" >> $LOG_FILE
+else
+    echo "CONNECTION TO $REMOTE_SSH FAILED - EXITING " >> $LOG_FILE
+    exit 1
+fi
+
 
 # Function to check if file date is later than given date
 is_file_date_later() {
@@ -94,9 +114,9 @@ find "$DIR_INTER" -type f > "$TEMP_LIST"
 
 # F: Backup new files
 echo "--------------------------------------------------"
-echo "Backing up new files to $REMOTE_DEST..."
+echo "Backing up new files to $REMOTE_SSH..."
 while IFS= read -r file; do
-    rsync -ave ssh "$file" "$REMOTE_DEST"
+    rsync -ave ssh "$file" "$REMOTE_SSH"
     if [[ $? -eq 0 ]]; then
         echo "$file" >> "$LOG_FILE"
     else

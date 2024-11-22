@@ -12,6 +12,7 @@
 # ==========================================================================
 
 import os
+import sys
 import argparse
 import logging
 import datetime
@@ -33,15 +34,27 @@ thisDir = os.path.dirname(os.path.realpath(__file__))
 load_env_file(os.path.join(thisDir, '.env'))  # Load environment variables
 
 # Read environment variables with defaults
-LOG_DIR = os.environ.get('LOG_DIR', '/usr/g/mrraw/kispi_logs/MRStudyBackup')
-DEST_ARCHIVE_DIR = os.environ.get('DEST_ARCHIVE_DIR', 'eiger:/DATA/DATA/CLINICAL_ARCHIVE/')
+LOG_DIR = os.environ.get('LOG_DIR', '/usr/g/mrraw/LOGS/MRStudyBackup')
+BACKUP_HOST = os.environ.get('BACKUP_HOST', None)
+SCP_BACKUP_DESTINATION = os.environ.get('SCP_BACKUP_DESTINATION', None)
 
-StartExamIDf = os.path.join(thisDir, 'StartExamID.txt')
 COMPLETE_DIR = os.path.join(thisDir, 'COMPLETE')
 backupStudyScript = os.path.join(thisDir, 'backupStudy.sh')
 logFileName = os.path.join(LOG_DIR, f'backupAll_{datetime.datetime.now().strftime("%Y%m%d-%H%M%S")}.log')
 
+if not os.path.isfile(backupStudyScript):
+    print(f"Missing bash script - expect to find {backupStudyScript}")
+    sys.exit()
+
+
+if (BACKUP_HOST is None) or (SCP_BACKUP_DESTINATION is None):
+    print("## ERROR parsing .env file - missing arguments")
+    print("  Expect: BACKUP_HOST & SCP_BACKUP_DESTINATION")
+    sys.exit()
+
 consolID = os.uname()[1]
+os.makedirs(COMPLETE_DIR, exist_ok=True)
+os.makedirs(LOG_DIR, exist_ok=True)
 COMPLETE_FILE = os.path.join(thisDir, f'LAST_SUCCESSFUL_EXAMID_{consolID}')
 # ===============================================================================
 
@@ -55,7 +68,7 @@ def __initLogging():
 def sendCompleteFile(successID):
     with open(COMPLETE_FILE, 'a') as fid:
         fid.write(f'Complete on {datetime.datetime.now()} with last success: {successID}\n')
-    exeStr = f'scp {COMPLETE_FILE} "{DEST_ARCHIVE_DIR}"'
+    exeStr = f'scp {COMPLETE_FILE} "{BACKUP_HOST}:{SCP_BACKUP_DESTINATION}/"'
     logging.info(f'RUN : {exeStr}')
     os.system(exeStr)
     logging.info(f'{40*"="} DONE {40*"="}')
@@ -99,11 +112,11 @@ if __name__ == '__main__':
     # --------------------------------------------------------------------------
     #  ARGUMENT PARSING
     # --------------------------------------------------------------------------
-    ap = argparse.ArgumentParser(description='KISPI scanner backup')
+    ap = argparse.ArgumentParser(description='MRI scanner backup')
 
     ap.add_argument('-nStart', dest='nStart', help='Exam ID to start from', type=int, required=True)
-    ap.add_argument('-nDelta', dest='nDelta', help='Number of exam IDs to check (count from start). [9999]', type=int, default=9999)
-    ap.add_argument('-nFail', dest='nFail', help='Number of failures (not found) before quit. [555]', type=int, default=555)
+    ap.add_argument('-nDelta', dest='nDelta', help='Number of exam IDs to check (count from start). [99]', type=int, default=99)
+    ap.add_argument('-nFail', dest='nFail', help='Number of failures (not found) before quit. [55]', type=int, default=15)
 
     args = ap.parse_args()
 
