@@ -5,11 +5,21 @@
 
 # ---
 # Update this to your personal arrangement
-REMOTE_CONNECTION="username@remote_ip"
-REMOTE_DESTINATION="remote_dest"
+# Load environment variables from .env file
+if [ -f .env ]; then
+    source .env
+else
+    echo "Error: .env file not found"
+    exit 1
+fi
+
+# Verify required environment variables are set
+if [ -z "$REMOTE_CONNECTION" ] || [ -z "$REMOTE_DESTINATION" ]; then
+    echo "Error: REMOTE_CONNECTION and REMOTE_DESTINATION must be set in .env file"
+    exit 1
+fi
+
 REMOTE_SSH="$REMOTE_CONNECTION:$REMOTE_DESTINATION"
-# an alternative method is to define these variables in a .env file then:
-# soucre .env
 # ---
 
 # These are standard locations on consol / vre

@@ -3,29 +3,25 @@ Toolkit for working with GE MR / CT / dicoms etc
 
 Provides hepler functions and pipelines for various tasks at console or remote. 
 
-## Current pipelines
+## Pipelines
 
 ### Fix special characters
 
-If special characters (e.g. german umlaut) occur in a dicom tag (PatientName for instance) then ATSMs choke nad replace this tag with "Error!". 
+If special characters (e.g. german umlaut) occur in a dicom tag (PatientName for instance) then ATSMs may choke and replace this tag with "Error!". 
 
 This can lead to issues at PACs level and similar. 
 
 This toolkit can fix these - see example code below
 
-#### Pipeline:
+### Backup studies
 
-- Check input directory if the error string ("Error!") exists
-- If False - do nothing
-- If True:
-- Make a temporary directory
-- Loop over all dicoms in input directory 
-  - Loop over each Tag
-  - If tag contains error string
-    - replace using value from tag of template dicom file
+Backup a tar.gz of a dicom study to a remote location
 
+### Backup gating logs / phyiological gating archives
 
-## On console
+Backup gating logs / phyiological gating archives to a remote location
+
+## Installation
 
 This project relies on pydicom. 
 
@@ -37,7 +33,7 @@ It is not straight forward to make a virtual environment on the scanner and inst
 - scp entire virtual environment onto scanner
 - note - to activate virtual environment on scanner in default shell you will need source venv/bin/activate.csh (not normal source venv/bin/activate).
 
-## To run from other python script on console
+### To run from other python script on console
 
 This can be called from a python script that is running in the system environment and will use the GETK python environment  
 
@@ -56,7 +52,7 @@ print(p1.returncode, stdout, stderr)
 ```
 
 
-## To run from csh script
+### To run from csh script
 
 ```tcsh
 INPUT_DIRECTORY=$1
@@ -70,7 +66,7 @@ source /path/to/venv/bin/activate.csh && /path/to/venv/bin/python /path/to/GETK/
 
 ```
 
-## To run from bash script
+### To run from bash script
 
 ```bash
 #!/bin/bash

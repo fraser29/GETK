@@ -57,7 +57,6 @@ fi
 
 # ==========================================================================
 ## RUN PATEXTRACT
-# ROOT="/export/home1/BackupManagement_FC"
 ROOT=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 COMPLETE_DIR="${ROOT}/COMPLETE"
 mkdir -p $COMPLETE_DIR
@@ -97,8 +96,7 @@ sed -i '1d' "${TXT_FILE}"
 # Tar up study
 tar zcf "${TAR_FILE}" -T "${TXT_FILE}"
 
-# Copy study to FC workstation
-# Further processing happens here (archive to MRI-Data)
+# Copy study to other workstation
 scp "${TAR_FILE}" $BACKUP_HOST:$SCP_BACKUP_DESTINATION
 
 # Clean up.
