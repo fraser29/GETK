@@ -132,36 +132,16 @@ while IFS= read -r file; do
     ssh -n vre cp "$file" "$DIR_INTER_VRE/$rel_path"
 done < "$TEMP_LIST"
 
-# D: Generate list of new files to backup
-echo "--------------------------------------------------"
-echo "Generating list of new files to backup..."
-find "$DIR_INTER" -type f > "$TEMP_LIST"
-
-# # E: Remove files from TEMP_LIST that are already in the log file (double-checking)
-# if [[ -f "$LOG_FILE" ]]; then
-#     grep -Fxvf "$LOG_FILE" "$TEMP_LIST" > "$TEMP_LIST.new"
-#     mv "$TEMP_LIST.new" "$TEMP_LIST"
-# fi
 
 # F: Backup new files
 echo "--------------------------------------------------"
 echo "Backing up new files to $REMOTE_SSH..."
-while IFS= read -r file; do
-    rsync -ave ssh "$file" "$REMOTE_SSH"
-    if [[ $? -eq 0 ]]; then
-        echo "$file" >> "$LOG_FILE"
-    else
-        echo "Failed to rsync $file"
-    fi
-done < "$TEMP_LIST"
+rsync -ave ssh "$DIR_INTER" "$REMOTE_SSH"
 
 # G: Clear INTERMEDIARY
 echo "--------------------------------------------------"
 echo "Clearing $DIR_INTER after backup..."
 rm -rf "$DIR_INTER"/*
-
-# Cleanup
-rm -f "$TEMP_LIST"
 
 echo "Backup completed."
 
