@@ -69,13 +69,34 @@ is_file_date_later() {
     fi
 }
 
-# Get user input for the date to check against
-read -p "Enter the date to check against (YYYYMMDD format): " check_date
+# Function to validate date format
+validate_date() {
+    local input_date="$1"
+    if ! [[ $input_date =~ ^[0-9]{8}$ ]]; then
+        return 1
+    fi
+    return 0
+}
 
-# Validate the input date format
-if ! [[ $check_date =~ ^[0-9]{8}$ ]]; then
-    echo "Invalid date format. Please use YYYYMMDD format."
-    exit 1
+# Get the date either from command line argument or user input
+check_date=""
+if [ $# -eq 1 ]; then
+    if validate_date "$1"; then
+        check_date="$1"
+    else
+        echo "Invalid date format in argument. Please use YYYYMMDD format."
+        exit 1
+    fi
+else
+    # Get user input for the date to check against
+    while true; do
+        read -p "Enter the date to check against (YYYYMMDD format): " check_date
+        if validate_date "$check_date"; then
+            break
+        else
+            echo "Invalid date format. Please use YYYYMMDD format."
+        fi
+    done
 fi
 
 # A: Copy files to intermediary
