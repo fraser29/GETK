@@ -3,6 +3,8 @@
 # A script to backup Physio Scan Archives (on vre)
 # by copying to intermediate location (mrraw) and then to remote location
 
+# Pass in a date to check against (YYYYMMDD), or it will prompt for one
+
 # ---
 # Update this to your personal arrangement
 # Load environment variables from .env file
@@ -29,7 +31,6 @@ DIR_MRRAW="/usr/g/mrraw"
 DIR_INTER="$DIR_MRRAW/physioarchive"
 mkdir -p $DIR_INTER
 DIR_INTER_VRE="$DIR_MRRAW_VRE/physioarchive"
-mkdir -p $DIR_INTER_VRE
 
 TEMP_LIST="$DIR_INTER/new_files_to_backup.list"
 

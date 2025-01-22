@@ -65,6 +65,7 @@ def __initLogging():
                         datefmt='%d/%m/%Y %I:%M:%S %p',
                         level=logging.DEBUG)
 
+
 def sendCompleteFile(successID):
     with open(COMPLETE_FILE, 'a') as fid:
         fid.write(f'Complete on {datetime.datetime.now()} with last success: {successID}\n')
@@ -72,6 +73,7 @@ def sendCompleteFile(successID):
     logging.info(f'RUN : {exeStr}')
     os.system(exeStr)
     logging.info(f'{40*"="} DONE {40*"="}')
+
 
 def run(ID_start, N_delta, max_fail):
     __initLogging()
@@ -98,7 +100,17 @@ def run(ID_start, N_delta, max_fail):
     sendCompleteFile(lastSuccess)
 
 
+def get_last_success_id():
+    if not os.path.isfile(COMPLETE_FILE):
+        return 0
+    with open(COMPLETE_FILE, 'r') as fid:
+        last_line = fid.readlines()[-1]
+        return int(last_line.split(' ')[-1])
+
+
 def run_from_args(arguments):
+    if arguments.nStart is None:
+        arguments.nStart = get_last_success_id()
     startID = int(arguments.nStart)
     run(startID, arguments.nDelta, arguments.nFail)
 
@@ -114,7 +126,7 @@ if __name__ == '__main__':
     # --------------------------------------------------------------------------
     ap = argparse.ArgumentParser(description='MRI scanner backup')
 
-    ap.add_argument('-nStart', dest='nStart', help='Exam ID to start from', type=int, required=True)
+    ap.add_argument('-nStart', dest='nStart', help='Exam ID to start from (default get from COMPLETE file)', type=int, default=None)
     ap.add_argument('-nDelta', dest='nDelta', help='Number of exam IDs to check (count from start). [99]', type=int, default=99)
     ap.add_argument('-nFail', dest='nFail', help='Number of failures (not found) before quit. [55]', type=int, default=15)
 
