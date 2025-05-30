@@ -20,7 +20,7 @@ import datetime
 def load_env_file(env_path):
     """Load environment variables from a file"""
     if not os.path.exists(env_path):
-        return
+        raise FileNotFoundError(f"Missing env file: {env_path}")
     
     with open(env_path) as f:
         for line in f:
@@ -60,6 +60,7 @@ COMPLETE_FILE = os.path.join(thisDir, f'LAST_SUCCESSFUL_EXAMID_{consolID}')
 
 #
 def __initLogging():
+    print(f"Building log file: {logFileName}")
     logging.basicConfig(filename=logFileName,
                         format='%(asctime)s | %(levelname)-8s | %(message)s',
                         datefmt='%d/%m/%Y %I:%M:%S %p',
@@ -96,8 +97,10 @@ def run(ID_start, N_delta, max_fail):
         if nFail >= max_fail:
             logging.warning(f'{nFail} have failed. Exiting')
             break
-
-    sendCompleteFile(lastSuccess)
+    if lastSuccess is not None:
+        sendCompleteFile(lastSuccess)
+    else: 
+        logging.error(f"No successful backups made")
 
 
 def get_last_success_id():
