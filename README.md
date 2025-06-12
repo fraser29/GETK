@@ -28,10 +28,32 @@ This project relies on pydicom.
 This is not available in the system python on the scanner. 
 
 It is not straight forward to make a virtual environment on the scanner and install external libraries so suggest: 
-- build virtual environment on separate workstation (ie. workstation you use for EPIC) (base python should be same "semi-major" version as on scanner - e.g. 3.6.*)
-- install pydicom via pip
-- scp entire virtual environment onto scanner
-- note - to activate virtual environment on scanner in default shell you will need source venv/bin/activate.csh (not normal source venv/bin/activate).
+- build venv on the scanner:
+```bash
+python3 -m venv ./myvenv
+```
+- on a separate machine download pydicom wheel
+```bash
+mkdir pydicom_wheelhouse
+pip download "pydicom==2.2.2" -d pydicom_wheelhouse
+```
+
+- Transfer and install on scanner:
+
+```bash
+source ./myvenv/bin/activate.csh
+pip install --no-index --find-links=/path/to/pydicom_wheelhouse pydicom==2.2.2
+```
+- Verify:
+
+```bash
+python -c "import pydicom; print(pydicom.__version__)"
+# Should print: 2.2.2
+```
+
+---
+
+**note** - to activate virtual environment on scanner in default shell you will need source venv/bin/activate.csh (not normal source venv/bin/activate).
 
 ### To run from other python script on console
 
