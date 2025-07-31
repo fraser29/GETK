@@ -36,7 +36,7 @@ def GE_fix_special_characters_error(directoryDicomFilesToCorrect,
     
     firstDicom = findFirstDicom(directoryDicomFilesToCorrect)
     if firstDicom is None:
-        raise FileNotFoundError(f"{firstDicom} not found")
+        raise FileNotFoundError(f"No DICOMS in {directoryDicomFilesToCorrect} found")
     dcmHasErrorStr = doesDicomHaveAnyTagContainingStr(firstDicom, errorStr)
     logging.debug(f"Checked file {firstDicom} has '{errorStr}' : {dcmHasErrorStr}.")
     if not dcmHasErrorStr:
@@ -54,10 +54,13 @@ def GE_fix_special_characters_error(directoryDicomFilesToCorrect,
     # Correct TAGs in all files
     dcmTemplateFile_ds = dicom.read_file(dcmTemplateFile, stop_before_pixels=True)
     for iFile in os.listdir(directoryDicomFilesToCorrect_TEMP):
+        thisFile_full = os.path.join(directoryDicomFilesToCorrect_TEMP, iFile)
         try:
-            iDcm_ds = replaceTagsMatchingStr_withTemplate(os.path.join(directoryDicomFilesToCorrect_TEMP, iFile), errorStr, dcmTemplateFile_ds)
+            iDcm_ds = replaceTagsMatchingStr_withTemplate(thisFile_full, errorStr, dcmTemplateFile_ds)
         except Exception as e:
-            logging.warning(f"GE_fix_special_characters_error: Error modifying {os.path.join(directoryDicomFilesToCorrect_TEMP, iFile)}.")
+            logging.warning(f"GE_fix_special_characters_error: Error modifying {thisFile_full}.")
+            # Still want to keep file though: 
+            shutil.copy2(thisFile_full, directoryDicomFilesToCorrect)
             continue
         newName = os.path.join(directoryDicomFilesToCorrect, iFile)
         iDcm_ds.save_as(newName)
