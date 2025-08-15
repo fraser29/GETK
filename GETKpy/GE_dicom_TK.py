@@ -55,10 +55,14 @@ def GE_fix_special_characters_error(directoryDicomFilesToCorrect,
     dcmTemplateFile_ds = dicom.read_file(dcmTemplateFile, stop_before_pixels=True)
     for iFile in os.listdir(directoryDicomFilesToCorrect_TEMP):
         thisFile_full = os.path.join(directoryDicomFilesToCorrect_TEMP, iFile)
+        if os.path.isdir(thisFile_full):
+            logging.warning(f"GE_fix_special_characters: Found diectory {thisFile_full}. MOVING")
+            shutil.copytree(thisFile_full, directoryDicomFilesToCorrect, dirs_exist_ok=True)
+            continue
         try:
             iDcm_ds = replaceTagsMatchingStr_withTemplate(thisFile_full, errorStr, dcmTemplateFile_ds)
         except Exception as e:
-            logging.warning(f"GE_fix_special_characters_error: Error modifying {thisFile_full}.")
+            logging.warning(f"GE_fix_special_characters_error: Error modifying {thisFile_full}. COPYING")
             # Still want to keep file though: 
             shutil.copy2(thisFile_full, directoryDicomFilesToCorrect)
             continue
