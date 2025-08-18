@@ -1,6 +1,8 @@
 """Set up logger to allow import through out project
 """
 import logging
+import os
+import shutil
 
 ### ====================================================================================================================
 
@@ -18,3 +20,16 @@ def logLevelConverter(loglevel):
     elif loglevel == 3:
         logging.getLogger().setLevel(logging.DEBUG)
     logging.debug(f"Set logging level to {logging.getLevelName(logging.getLogger(__name__).getEffectiveLevel())}")
+
+
+def copytree_non_shutil(src, dst, symlinks=False, ignore=None):
+    if not os.path.exists(dst):
+        os.makedirs(dst)
+    for item in os.listdir(src):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        if os.path.isdir(s):
+            copytree_non_shutil(s, d, symlinks, ignore)
+        else:
+            if not os.path.exists(d) or os.stat(s).st_mtime - os.stat(d).st_mtime > 1:
+                shutil.copy2(s, d)

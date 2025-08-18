@@ -7,7 +7,7 @@ import shutil
 import subprocess
 import pydicom as dicom
 
-from GETK_helper import logging
+from GETK_helper import logging, copytree_non_shutil
 
 def GE_fix_special_characters_error(directoryDicomFilesToCorrect, 
                                     dcmTemplateFile,
@@ -57,7 +57,7 @@ def GE_fix_special_characters_error(directoryDicomFilesToCorrect,
         thisFile_full = os.path.join(directoryDicomFilesToCorrect_TEMP, iFile)
         if os.path.isdir(thisFile_full):
             logging.warning(f"GE_fix_special_characters: Found diectory {thisFile_full}. MOVING")
-            shutil.copytree(thisFile_full, directoryDicomFilesToCorrect, dirs_exist_ok=True)
+            copytree_non_shutil(thisFile_full, directoryDicomFilesToCorrect, dirs_exist_ok=True)
             continue
         try:
             iDcm_ds = replaceTagsMatchingStr_withTemplate(thisFile_full, errorStr, dcmTemplateFile_ds)
