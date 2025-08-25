@@ -21,6 +21,8 @@ Backup a tar.gz of a dicom study to a remote location
 
 Backup gating logs / phyiological gating archives to a remote location
 
+
+
 ## Installation
 
 This project relies on pydicom. 
@@ -54,6 +56,10 @@ python -c "import pydicom; print(pydicom.__version__)"
 ---
 
 **note** - to activate virtual environment on scanner in default shell you will need source venv/bin/activate.csh (not normal source venv/bin/activate).
+
+
+
+## Usage
 
 ### To run from other python script on console
 
