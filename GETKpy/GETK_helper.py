@@ -22,14 +22,13 @@ def logLevelConverter(loglevel):
     logging.debug(f"Set logging level to {logging.getLevelName(logging.getLogger(__name__).getEffectiveLevel())}")
 
 
-def copytree_non_shutil(src, dst, symlinks=False, ignore=None):
+def copytree_non_shutil(src, dst):
     if not os.path.exists(dst):
         os.makedirs(dst)
     for item in os.listdir(src):
         s = os.path.join(src, item)
         d = os.path.join(dst, item)
         if os.path.isdir(s):
-            copytree_non_shutil(s, d, symlinks, ignore)
+            copytree_non_shutil(s, d)
         else:
-            if not os.path.exists(d) or os.stat(s).st_mtime - os.stat(d).st_mtime > 1:
-                shutil.copy2(s, d)
+            shutil.copy2(s, d)
