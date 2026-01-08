@@ -1,7 +1,39 @@
 # GETK
 Toolkit for working with GE MR / CT / dicoms etc
 
-Provides hepler functions and pipelines for various tasks at console or remote. 
+This toolkit provides helper functions and pipelines for a variety of tasks. The code is based on real-world solutions developed to address common issues in a large institutional hospital and has been generalised for use by others.
+
+## Disclaimer
+
+This software is provided “AS IS”, without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, accuracy, reliability, or non-infringement.
+
+The authors and contributors shall not be liable for any direct, indirect, incidental, special, exemplary, or consequential damages (including, but not limited to, loss of data, loss of profits, system failure, or personal injury) arising in any way out of the use, misuse, or inability to use this software, even if advised of the possibility of such damage.
+
+This software is not designed, tested, or certified for use in safety-critical, medical, life-support, or mission-critical systems.
+
+Use of this software is entirely at your own risk.
+
+## General
+
+The scripts and functions provided here are generalised. However, they often require user specific information (example a back up destination). In these cases, .env files are expected with the necessary information. Example files are provided for such instances. 
+
+### .env file creation
+
+The user should copy the .env.example file to .env and then complete the required entries with customised paths / IP addresses etc. 
+
+### passwordless ssh 
+
+The backup scripts rely on passwordless ssh access to a remote machine. The steps necessary for this are usually as follows:
+- Copy public key to remote server: `ssh-copy-id user@remote-host`
+- Test connection: `ssh user@remote-host`
+- Create alias in .ssh/config e.g.: 
+```bash
+Host myserver
+    HostName remote-host-or-ip
+    User user
+    IdentityFile ~/.ssh/id_ed25519
+```
+- Test alias: `ssh myserver`
 
 ## Pipelines
 
@@ -20,7 +52,6 @@ Backup a tar.gz of a dicom study to a remote location
 ### Backup gating logs / phyiological gating archives
 
 Backup gating logs / phyiological gating archives to a remote location
-
 
 
 ## Installation

@@ -1,7 +1,16 @@
 #!/bin/bash
 
+# ==============================================================================
 # A script to backup physiological gating files
-# Note this is "OLD" format - changed approx MR30
+# Note these 'physiological gating files' are "OLD" format 
+#   - replaced approx MR30 by PhysioArchive
+#
+# ------------------------------------------------------------------------------
+# This is a general file - customisation for your personal/institution
+# environment is achieved by loading environment variables from .env file
+#
+# see README.md for details
+# ==============================================================================
 
 if [ -f .env ]; then
     source .env

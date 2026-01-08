@@ -1,15 +1,23 @@
 #!/usr/bin/env python3
 
-# ==========================================================================
+# ==============================================================================
 # Author: Fraser Callaghan
 # Description: Backs up studies from scanner for clinical backup
 # Last Update: 03.10.2022
 #
 # INPUT: see argparse
-# ACTION: loop through exam IDs - check if already backedup - run backupStudy.sh - stop once done enough.
+# ACTION:  
+#       - loop through exam IDs 
+#       - check if already backed up 
+#       - run backupStudy.sh 
+#       - stop once done enough.
 #
-
-# ==========================================================================
+# ------------------------------------------------------------------------------
+# This is a general file - customisation for your personal/institution
+# environment is achieved by loading environment variables from .env file
+#
+# see README.md for details
+# ==============================================================================
 
 import os
 import sys

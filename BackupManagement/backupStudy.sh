@@ -1,13 +1,23 @@
 #!/bin/bash
 
-# ==========================================================================
+# ==============================================================================
 # Author: Fraser Callaghan
 # Description: Backs up studies from scanner for clinical backup
 # Last Update: 18.11.2024
 #
 # INPUT: exam number
-# ACTION: get exam dicoms via pathExtract -> tar.gz -> scp to remote destination -> mv pathExtract output text file to COMPLETE directory
+# ACTION: 
+#       - get exam dicoms via pathExtract 
+#       - tar.gz 
+#       - scp to remote destination 
+#       - mv pathExtract output text file to COMPLETE directory
 #
+# ------------------------------------------------------------------------------
+# This is a general file - customisation for your personal/institution
+# environment is achieved by loading environment variables from .env file
+#
+# see README.md for details
+# ==============================================================================
 
 # Load environment variables
 ENV_FILE="$(dirname "${BASH_SOURCE[0]}")/.env"

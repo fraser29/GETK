@@ -1,13 +1,18 @@
 #!/bin/bash
 
+# ==============================================================================
 # A script to backup Physio Scan Archives (on vre)
 # by copying to intermediate location (mrraw) and then to remote location
-
+#
 # Pass in a date to check against (YYYYMMDD), or it will prompt for one
+#
+# ------------------------------------------------------------------------------
+# This is a general file - customisation for your personal/institution
+# environment is achieved by loading environment variables from .env file
+#
+# see README.md for details
+# ==============================================================================
 
-# ---
-# Update this to your personal arrangement
-# Load environment variables from .env file
 if [ -f .env ]; then
     source .env
 else
