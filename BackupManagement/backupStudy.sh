@@ -19,24 +19,24 @@
 # see README.md for details
 # ==============================================================================
 
+# --------------------------------------------------
+# Resolve script directory
+THIS_ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+
+# --------------------------------------------------
 # Load environment variables
-ENV_FILE="$(dirname "${BASH_SOURCE[0]}")/.env"
-if [ -f "$ENV_FILE" ]; then
+ENV_FILE="${THIS_ROOT_DIR}/.env"
+if [[ -f "$ENV_FILE" ]]; then
+    # shellcheck disable=SC1090
     source "$ENV_FILE"
 else
-    echo "#ERROR: Configuration file .env not found"
+    echo "ERROR: Configuration file .env not found" >&2
     exit 1
 fi
 
 # Ensure required variables are set
-if [ -z "$SCP_BACKUP_DESTINATION" ]; then
-    echo "#ERROR: SCP_BACKUP_DESTINATION not set in .env file"
-    exit 1
-fi
-if [ -z "$BACKUP_HOST" ]; then
-    echo "#ERROR: BACKUP_HOST not set in .env file"
-    exit 1
-fi
+: "${BACKUP_HOST:?BACKUP_HOST not set in .env}"
+: "${SCP_BACKUP_DESTINATION:?SCP_BACKUP_DESTINATION not set in .env}"
 
 # ==========================================================================
 PREFIX=$(uname -n)
@@ -67,12 +67,11 @@ fi
 
 # ==========================================================================
 ## RUN PATEXTRACT
-ROOT=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-COMPLETE_DIR="${ROOT}/COMPLETE"
+COMPLETE_DIR="${THIS_ROOT_DIR}/COMPLETE"
 mkdir -p $COMPLETE_DIR
 
-TXT_FILE="${ROOT}/${PREFIX}_ex${1}.txt"
-TAR_FILE="${ROOT}/${PREFIX}_ex${1}.tar.gz"
+TXT_FILE="${THIS_ROOT_DIR}/${PREFIX}_ex${1}.txt"
+TAR_FILE="${THIS_ROOT_DIR}/${PREFIX}_ex${1}.tar.gz"
 
 # Read image file paths from DB to txt file
 $pathExtract_exe "$1" > "${TXT_FILE}"

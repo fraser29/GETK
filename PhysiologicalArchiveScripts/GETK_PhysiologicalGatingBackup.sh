@@ -12,24 +12,37 @@
 # see README.md for details
 # ==============================================================================
 
-if [ -f .env ]; then
-    source .env
+set -euo pipefail
+
+# --------------------------------------------------
+# Resolve script directory
+THIS_ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+
+# --------------------------------------------------
+# Load environment variables
+ENV_FILE="${THIS_ROOT_DIR}/.env"
+if [[ -f "$ENV_FILE" ]]; then
+    # shellcheck disable=SC1090
+    source "$ENV_FILE"
 else
-    echo "Error: .env file not found"
+    echo "ERROR: Configuration file .env not found" >&2
     exit 1
 fi
 
 # Verify required environment variables are set
-if [ -z "$REMOTE_CONNECTION" ] || [ -z "$REMOTE_DESTINATION" ]; then
-    echo "Error: REMOTE_CONNECTION and REMOTE_DESTINATION must be set in .env file"
+: "${REMOTE_CONNECTION:?Error: REMOTE_CONNECTION must be set in .env file}"
+: "${REMOTE_DESTINATION:?Error: REMOTE_DESTINATION must be set in .env file}"
+
+
+# Construct remote SSH path
+REMOTE_SSH="${REMOTE_CONNECTION}:${REMOTE_DESTINATION}"
+
+# Perform rsync with error handling
+echo "Backing up gating logs to ${REMOTE_SSH}..."
+if rsync -avzh --inplace /usr/g/service/log/gating "${REMOTE_SSH}/"; then
+    echo "Backup completed successfully"
+else
+    echo "Error: Backup failed" >&2
     exit 1
 fi
-
-# ------ 
-REMOTE_SSH="$REMOTE_CONNECTION:$REMOTE_DESTINATION"
-#-------
-
-rsync -avzhe ssh /usr/g/service/log/gating $REMOTE_SSH
-
-
 

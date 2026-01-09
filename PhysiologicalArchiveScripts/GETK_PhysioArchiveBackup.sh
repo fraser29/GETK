@@ -13,34 +13,40 @@
 # see README.md for details
 # ==============================================================================
 
-if [ -f .env ]; then
-    source .env
+# --------------------------------------------------
+# Resolve script directory
+THIS_ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+
+# --------------------------------------------------
+# Load environment variables
+ENV_FILE="${THIS_ROOT_DIR}/.env"
+if [[ -f "$ENV_FILE" ]]; then
+    # shellcheck disable=SC1090
+    source "$ENV_FILE"
 else
-    echo "Error: .env file not found"
+    echo "ERROR: Configuration file .env not found" >&2
     exit 1
 fi
 
 # Verify required environment variables are set
-if [ -z "$REMOTE_CONNECTION" ] || [ -z "$REMOTE_DESTINATION" ]; then
-    echo "Error: REMOTE_CONNECTION and REMOTE_DESTINATION must be set in .env file"
-    exit 1
-fi
+: "${REMOTE_CONNECTION:?Error: REMOTE_CONNECTION must be set in .env file}"
+: "${REMOTE_DESTINATION:?Error: REMOTE_DESTINATION must be set in .env file}"
 
-REMOTE_SSH="$REMOTE_CONNECTION:$REMOTE_DESTINATION"
+REMOTE_SSH="${REMOTE_CONNECTION}:${REMOTE_DESTINATION}"
 # ---
 
 # These are standard locations on consol / vre
 DIR_SRC="/data/arc/Streaming"
 DIR_MRRAW_VRE="/export/research/mrraw"
 DIR_MRRAW="/usr/g/mrraw"
-DIR_INTER="$DIR_MRRAW/physioarchive"
+DIR_INTER="${DIR_MRRAW}/physioarchive"
 mkdir -p $DIR_INTER
-DIR_INTER_VRE="$DIR_MRRAW_VRE/physioarchive"
+DIR_INTER_VRE="${DIR_MRRAW_VRE}/physioarchive"
 
-TEMP_LIST="$DIR_INTER/new_files_to_backup.list"
+TEMP_LIST="${DIR_INTER}/new_files_to_backup.list"
 
 timestamp=$(date +"%Y%m%d_%H%M%S")
-LOG_FILE="$DIR_MRRAW/physioarchive_backup_completed_$timestamp.log"
+LOG_FILE="${DIR_MRRAW}/physioarchive_backup_completed_${timestamp}.log"
 touch "$LOG_FILE"
 
 ## --- INITIATION COMPLETE --- ##
@@ -49,7 +55,7 @@ touch "$LOG_FILE"
 if ssh $REMOTE_CONNECTION "[ -d $REMOTE_DESTINATION ]"; then
     echo "CONNECTION OK" >> $LOG_FILE
 else
-    echo "CONNECTION TO $REMOTE_SSH FAILED - EXITING " >> $LOG_FILE
+    echo "CONNECTION TO ${REMOTE_SSH} FAILED - EXITING " >> $LOG_FILE
     exit 1
 fi
 
@@ -60,15 +66,15 @@ is_file_date_later() {
     local compare_date="$2"
     
     # Extract date from filename (assuming format YYYYMMDD)
-    file_date=$(echo "$filename" | grep -oE '[0-9]{8}')
+    file_date=$(echo "${filename}" | grep -oE '[0-9]{8}')
     
     # Check if a valid date was found in the filename
-    if [[ -z "$file_date" ]]; then
+    if [[ -z "${file_date}" ]]; then
         return 1  # False: No valid date found in filename
     fi
     
     # Compare dates
-    if [[ "$file_date" > "$compare_date" ]]; then
+    if [[ "${file_date}" > "${compare_date}" ]]; then
         return 0  # True: File date is later
     else
         return 1  # False: File date is not later
@@ -78,7 +84,7 @@ is_file_date_later() {
 # Function to validate date format
 validate_date() {
     local input_date="$1"
-    if ! [[ $input_date =~ ^[0-9]{8}$ ]]; then
+    if ! [[ "${input_date}" =~ ^[0-9]{8}$ ]]; then
         return 1
     fi
     return 0
@@ -108,22 +114,22 @@ fi
 # A: Copy files to intermediary
 # Ensure intermediary is empty at the start
 echo "--------------------------------------------------"
-echo "Clearing $DIR_INTER..."
-rm -rf "$DIR_INTER"/*
-mkdir -p "$DIR_INTER"
+echo "Clearing ${DIR_INTER}..."
+rm -rf -- "${DIR_INTER}"/*
+mkdir -p "${DIR_INTER}"
 
 # B: Generate list of files to copy to intermediary
-ssh vre find "$DIR_SRC" -type f > "$TEMP_LIST"
+ssh vre find "${DIR_SRC}" -type f > "$TEMP_LIST"
 
 # Remove files from TEMP_LIST that are not later than the check_date
-echo "Filtering files newer than $check_date..."
+echo "Filtering files newer than ${check_date}..."
 temp_file=$(mktemp)
 while IFS= read -r file; do
-    if is_file_date_later "$(basename "$file")" "$check_date"; then
+    if is_file_date_later "$(basename "$file")" "${check_date}"; then
         echo "$file" >> "$temp_file"
     fi
 done < "$TEMP_LIST"
-mv "$temp_file" "$TEMP_LIST"
+mv "${temp_file}" "${TEMP_LIST}"
 
 # C: Copy new files to intermediary
 echo "--------------------------------------------------"
@@ -141,13 +147,13 @@ done < "$TEMP_LIST"
 
 # F: Backup new files
 echo "--------------------------------------------------"
-echo "Backing up new files to $REMOTE_SSH..."
-rsync -ave ssh "$DIR_INTER" "$REMOTE_SSH"
+echo "Backing up new files to ${REMOTE_SSH}..."
+rsync -av --inplace "${DIR_INTER}" "${REMOTE_SSH}"
 
 # G: Clear INTERMEDIARY
 echo "--------------------------------------------------"
 echo "Clearing $DIR_INTER after backup..."
-rm -rf "$DIR_INTER"/*
+rm -rf -- "${DIR_INTER}"/*
 
 echo "Backup completed."
 
