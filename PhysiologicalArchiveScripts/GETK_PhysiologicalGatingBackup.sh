@@ -29,13 +29,14 @@ else
     exit 1
 fi
 
+host=$(hostname)
 # Verify required environment variables are set
 : "${REMOTE_CONNECTION:?Error: REMOTE_CONNECTION must be set in .env file}"
 : "${REMOTE_DESTINATION:?Error: REMOTE_DESTINATION must be set in .env file}"
 
 
 # Construct remote SSH path
-REMOTE_SSH="${REMOTE_CONNECTION}:${REMOTE_DESTINATION}"
+REMOTE_SSH="${REMOTE_CONNECTION}:${REMOTE_DESTINATION}/${host}"
 
 # Perform rsync with error handling
 echo "Backing up gating logs to ${REMOTE_SSH}..."
